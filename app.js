@@ -47,4 +47,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+const db = require("./models");
+db.sequelize.sync();
+
 module.exports = app;
