@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
   };
   Registration.init({
     list: DataTypes.ARRAY(DataTypes.JSON),
-    limit: DataTypes.DATE,
+    start_date: DataTypes.DATE,
+    end_date: DataTypes.DATE,
     status: DataTypes.BOOLEAN
   }, {
     sequelize,

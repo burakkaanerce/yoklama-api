@@ -11,7 +11,10 @@ module.exports = {
       list: {
         type: Sequelize.ARRAY(Sequelize.JSON)
       },
-      limit: {
+      start_date: {
+        type: Sequelize.DATE
+      },
+      end_date: {
         type: Sequelize.DATE
       },
       status: {

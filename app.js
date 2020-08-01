@@ -25,7 +25,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+require("./routes/lecture.routes")(app);
 require("./routes/lecturer.routes")(app);
+require("./routes/registration.routes")(app);
+require("./routes/student.routes")(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
