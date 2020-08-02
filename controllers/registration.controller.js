@@ -4,9 +4,41 @@ const Lecture = db.Lecture;
 const Lecturer = db.Lecturer;
 const Op = db.Sequelize.Op;
 
+const fs = require('fs')
+
 const Excel = require('exceljs')
 
 exports.find = (req, res) => {
+  const id = req.body.id;
+
+  if(!id) {
+    return res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving registrations."
+    });
+  }
+
+  return Registration.findAll({ where: {id: id},
+    include: [
+      {
+        model: Lecture
+      },
+      {
+        model: Lecturer
+      }
+    ] })
+    .then(data => {
+      return res.json({success: true, registration: data});
+    })
+    .catch(err => {
+      return res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving registrations."
+      });
+    });
+}
+
+exports.findone = (req, res) => {
   const id = req.body.id;
 
   if(!id) {
@@ -234,7 +266,12 @@ exports.download = (req, res) => {
   const registrationId = req.body.registrationId;
 
   if(registrationId) {
-    return Registration.findAll({ where: {id: registrationId}})
+    return Registration.findAll({ where: {id: registrationId},
+      include: [
+        {
+          model: Lecture
+        }
+      ]})
       .then(async data => {
         if(data.length === 0) {
           return res.status(500).send({
@@ -243,7 +280,7 @@ exports.download = (req, res) => {
           });
         }
 
-        const { list } = data[0];
+        const { list, Lecture: { name, code } } = data[0];
 
         let workbook = new Excel.Workbook()
         let worksheet = workbook.addWorksheet('Yoklama')
@@ -296,9 +333,51 @@ exports.download = (req, res) => {
           }
         })
 
-        await workbook.xlsx.writeFile('Yoklama.xlsx')
+        let filename = `Yoklama-${code}-${name}-${(new Date()).toISOString()}.xlsx`;
+        filename = filename.replace(/ /g,"_");
+        
+        let path = `./downloads/${filename}`
 
-        return res.json({success: true, message: 'Created'});
+        let counter = 1;
+        try {
+          if(fs.existsSync(path)) {
+            while (fs.existsSync(path)) {
+              filename = `Yoklama-${code}-${name}-${(new Date()).toISOString()}-${counter+1}.xlsx`;
+              path = `./downloads/${filename}`;
+            }
+          }
+        } catch(error) {
+          
+        }
+
+        return workbook.xlsx.writeFile('Yoklama.xlsx').then(result => {
+          console.log("result: ", result)
+        
+        fs.rename('Yoklama.xlsx', `./public/downloads/Yoklama.xlsx`, function(err) {
+          if (err) {
+            console.log("rename error: ", err)
+            throw err;
+          } else {
+            console.log('Move complete!');
+            return res.json({success: true, message: 'Created', filename: filename});
+          }
+        })
+          /* fs.rename('Yoklama.xlsx', path, (err) => {
+            if (err) {
+              console.log("rename error: ", err)
+              throw err;
+            }
+            console.log('Move complete!');
+            return res.json({success: true, message: 'Created'});
+          }); */
+        }).catch(error => {
+          console.log("error: ", error)
+          return res.status(500).send({
+            message:
+              "File is not created"
+          });
+        })
+
 
         /* const { status } = data[0]
 
@@ -337,3 +416,26 @@ exports.download = (req, res) => {
     });
   }
 }
+
+exports.delete = (req, res) => {
+  const registrationId = req.body.registrationId;
+
+  Registration.destroy({
+    where: { id: registrationId }
+  })
+    .then(num => {
+      if (num == 1) {
+        return res.json({success: true, message: 'Deleted'});
+      } else {
+        return res.status(500).send({
+          message:
+            "Registration is not deleted because it does not exist"
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete Registration with id=" + id
+      });
+    });
+};

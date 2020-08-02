@@ -7,8 +7,11 @@ function authToken(req, res, next) {
   if (token == null || tokenType != "Bearer") return res.sendStatus(401)
 
   jwt.verify(token, "yoklamaauthsecret", (err, user) => {
-    console.log(err)
-    if (err) return res.sendStatus(403)
+    console.log("user: ", user)
+    if (err) return res.status(403).send({
+      message:
+        err.message || "Unauthorized"
+    });
     req.user = user
     next()
   })

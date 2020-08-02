@@ -65,3 +65,18 @@ exports.signup = (req, res) => {
     
   }
 };
+
+
+exports.whoami = (req, res) => {
+  const token = req.body.token;
+
+  if(token) {
+    jwt.verify(token, "yoklamaauthsecret", (err, user) => {
+      console.log("user: ", user)
+      if (err) return res.status(403).send({success: false, message: err || 'User is not found'});
+      
+      return res.json({success: true, user: user});
+    })
+  }
+  return res.status(403).send({success: false, message: 'User is not found'});
+};
