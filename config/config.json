@@ -1,9 +1,9 @@
 {
   "development": {
-    "username": "qgcelwmozoguna",
-    "password": "1836ab2da469e80520e2e937eb520aea44bf3123a6ea68366ec2578c9372dfaf",
-    "database": "daav859ua2i6kp",
-    "host": "ec2-54-197-254-117.compute-1.amazonaws.com",
+    "username": "postgres",
+    "password": "3723erce",
+    "database": "yoklama",
+    "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {

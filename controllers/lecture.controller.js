@@ -5,16 +5,18 @@ const Op = db.Sequelize.Op;
 exports.list = (req, res) => {
   const code = req.body.code;
   const name = req.body.name;
+  const lecturerId = req.body.lecturerId;
 
-  let condition = !code && !name ? null : {};
+  let condition = !code && !name && !lecturerId ? null : {};
   if(code) {
     condition.code = { [Op.iLike]: `%${code}%` }
   }
   if(name) {
     condition.name = { [Op.iLike]: `%${name}%` }
   }
-
-  console.log(code, name, condition)
+  if(lecturerId) {
+    condition.LecturerId = lecturerId
+  }
 
   return Lecture.findAll({ where: condition })
     .then(data => {
